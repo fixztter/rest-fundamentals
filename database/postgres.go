@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/fixztter/rest-fundamentals/models"
+	_ "github.com/lib/pq"
 )
 
 type PostgresRepository struct {
@@ -21,11 +22,11 @@ func NewPostgresRepository(url string) (*PostgresRepository, error) {
 }
 
 func (r *PostgresRepository) InsertUser(ctx context.Context, user *models.User) error {
-	_, err := r.db.ExecContext(ctx, "INSERT INTO users (email, password) values($1, $2)", user.Email, user.Password)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO users (id, email, password) values($1, $2, $3)", user.Id, user.Email, user.Password)
 	return err
 }
 
-func (r *PostgresRepository) GetUserById(ctx context.Context, id int64) (*models.User, error) {
+func (r *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.User, error) {
 	rows, err := r.db.QueryContext(ctx, "SELECT id, email FROM users WHERE id=$1", id)
 	defer func() {
 		err = rows.Close()
