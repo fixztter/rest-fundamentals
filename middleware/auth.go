@@ -30,6 +30,7 @@ func CheckAuthMiddleware(s server.Server) func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !shouldCheckToken(r.URL.Path) {
 				next.ServeHTTP(w, r)
+				return
 			}
 			tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
 			_, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, func(t *jwt.Token) (interface{}, error) {
