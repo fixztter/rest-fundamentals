@@ -70,6 +70,7 @@ func (r *PostgresRepository) InsertPost(ctx context.Context, post *models.Post) 
 	_, err := r.db.ExecContext(ctx, "INSERT INTO posts (id, post_content, user_id) values($1, $2, $3)", post.Id, post.PostContent, post.UserId)
 	return err
 }
+
 func (r *PostgresRepository) GetPostById(ctx context.Context, id string) (*models.Post, error) {
 	rows, err := r.db.QueryContext(ctx, "SELECT id, post_content, created_at, user_id FROM posts WHERE id=$1", id)
 	defer func() {
@@ -89,6 +90,12 @@ func (r *PostgresRepository) GetPostById(ctx context.Context, id string) (*model
 	}
 	return &post, nil
 }
+
+func (r *PostgresRepository) UpdatePost(ctx context.Context, post *models.Post) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE posts SET post_content=$1 WHERE id=$2 AND user_id=$3", &post.PostContent, post.Id, post.UserId)
+	return err
+}
+
 func (r *PostgresRepository) Close() error {
 	return r.db.Close()
 }
