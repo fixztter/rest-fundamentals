@@ -70,7 +70,25 @@ func (r *PostgresRepository) InsertPost(ctx context.Context, post *models.Post) 
 	_, err := r.db.ExecContext(ctx, "INSERT INTO posts (id, post_content, user_id) values($1, $2, $3)", post.Id, post.PostContent, post.UserId)
 	return err
 }
-
+func (r *PostgresRepository) GetPostById(ctx context.Context, id string) (*models.Post, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT id, post_content, created_at, user_id FROM posts WHERE id=$1", id)
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	var post = models.Post{}
+	for rows.Next() {
+		if err = rows.Scan(&post.Id, &post.PostContent, &post.CreatedAt, &post.UserId); err == nil {
+			return &post, nil
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
 func (r *PostgresRepository) Close() error {
 	return r.db.Close()
 }

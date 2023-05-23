@@ -9,6 +9,7 @@ import (
 	"github.com/fixztter/rest-fundamentals/repository"
 	"github.com/fixztter/rest-fundamentals/server"
 	"github.com/golang-jwt/jwt"
+	"github.com/gorilla/mux"
 	"github.com/segmentio/ksuid"
 )
 
@@ -61,5 +62,18 @@ func InsertPostHandler(s server.Server) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+func GetPostByIdHundler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		post, err := repository.GetPostById(r.Context(), params["id"])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-type", "application/json")
+		json.NewEncoder(w).Encode(post)
 	}
 }
